@@ -1,9 +1,13 @@
 from random import randrange
 
+def sendResponse(str):
+    rf = open('./1/reponses.txt','w')
+    rf.write(str)
+    rf.close()
+
 def info(str) :
     if (len(str) > 0) :
         print("/#################/")
-        print(str.strip())
 
 def diff(str1, str2) :
     l1 = len(str1)
@@ -17,27 +21,18 @@ def diff(str1, str2) :
     return res
 
 def randomResponseTuiles(array) :
-    rf = open('./1/reponses.txt','w')
     lg = len(array)
     response = str(randrange(lg))
-    #print(response)
-    rf.write(response)
-    rf.close()
+    sendResponse(response)
 
 def randomResponsePossibility(array) :
-    rf = open('./1/reponses.txt','w')
     lg = len(array)
     response = array[randrange(lg)].strip()
-    # print(response)
-    rf.write(response)
-    rf.close()
+    sendResponse(response)
 
 def powerResponseRandom(nb) :
-    rf = open('./1/reponses.txt','w')
     response = str(randrange(nb))
-    # print(response)
-    rf.write(response)
-    rf.close()
+    sendResponse(response)
 
 
 def extractTuile(string):
@@ -64,7 +59,7 @@ def questionParser(question, old_question) :
             powerResponseRandom(10)
         else :
             rf = open('./1/reponses.txt','w')
-            rf.write(str(randrange(6)))
+            rf.write(str(0))
             rf.close()
 
 def lancer():
