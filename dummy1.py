@@ -1,5 +1,4 @@
 from random import randrange
-import difflib
 
 def info(str) :
     if (len(str) > 0) :
@@ -14,7 +13,7 @@ def diff(str1, str2) :
     while x < l2 :
         if (x >= l1 or str2[x] != str1[x]) :
             res = res + str2[x]
-        x = x + 1;
+        x = x + 1
     return res
 
 def randomResponseTuiles(array) :
