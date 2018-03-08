@@ -33,6 +33,8 @@ class InfoGlobal :
         self.ombre = 0
         self.bloque = ""
         self.playerList = PlayerList()
+        self.lastQuestion = ""
+        self.lastAnswer = ""
 
     def changeCharacter(self, char):
         self.characterPlayed = char
@@ -54,6 +56,15 @@ class InfoGlobal :
 
     def getInfo(self):
         return self.tour + " : " + self.score + " : " + self.ombre + " : " + self.bloque
+
+    def setQuestion(self, question):
+        self.lastQuestion = question
+
+    def setQuestion(self, answer):
+        self.lastAnswer = answer
+
+    def getLastQA(self):
+        return [self.lastQuestion, self.lastAnswer]
 
 def sendResponse(str):
     #print(str)

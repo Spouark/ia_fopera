@@ -1,4 +1,6 @@
 from random import randrange
+from copy import copy
+import time
 
 path ='./1'
 
@@ -11,14 +13,24 @@ class Player :
         self.position = position
         self.status = status
 
+    def getStatus(self):
+        return self.status
+
 class PlayerList :
     def __init__(self):
         self.colorList = ['gris', 'blanc', 'bleu', 'rouge', 'marron', 'noir', 'rose', 'violet']
         for x in self.colorList:
             setattr(self, x, Player())
 
-    def changePlayerPlace(self, color, position, status):
+    def getColorList(self):
+        return self.colorList
+
+    def changePlayerInfo(self, color, position, status):
         getattr(self, color).update(position, status)
+
+    def changePlayerPlace(self, color, position):
+        player = getattr(self, color)
+        player.update(position, player.getStatus())
 
     def getPlayerInfo(self, color):
         p = getattr(self, color)
@@ -33,6 +45,20 @@ class InfoGlobal :
         self.ombre = 0
         self.bloque = ""
         self.playerList = PlayerList()
+        self.lastQuestion = ""
+        self.way = [[1,4], [0,2], [1,3], [2, 7], [1, 5, 8], [4, 6], [5, 7], [3, 6, 9], [4, 9], [7,8]]
+
+    def getPlayerList(self):
+        return self.playerList
+
+    def getWay(self, room):
+        return self.way[room]
+
+    def setLastQuestion(self, question):
+        self.lastQuestion = question
+
+    def getLastQuestion(self):
+        return self.lastQuestion
 
     def changeCharacter(self, char):
         self.characterPlayed = char
@@ -56,7 +82,6 @@ class InfoGlobal :
         return self.tour + " : " + self.score + " : " + self.ombre + " : " + self.bloque
 
 def sendResponse(str):
-    #print(str)
     rf = open(path + '/reponses.txt','w')
     rf.write(str)
     rf.close()
@@ -69,7 +94,14 @@ def defineInfoTour(line, info):
     b = array[4]
     info.setInfoTour(t,s,o,b)
 
-def info(lines, info) :
+def interpretAnswer(answer, info):
+    lastQuestion = info.getLastQuestion()
+    if "Tuiles disponibles" in lastQuestion:
+        info.changeCharacter(answer.split('-')[0])
+    elif "positions disponibles" in lastQuestion:
+        info.getPlayerList().changePlayerPlace(info.getCharacter(), answer)
+
+def infoParser(lines, info) :
     if (len(lines) > 0):
         lines = lines.strip()
         for line in lines.split('\n') :
@@ -79,13 +111,18 @@ def info(lines, info) :
                 defineInfoTour(line.strip(), info)
             elif all(x in line for x in info.playerList.colorList):
                 updatePlayerPosition(info, line)
+            elif "QUESTION" in line :
+                info.setLastQuestion(line[11:].strip())
+            elif "REPONSE INTERPRETEE" in line:
+                interpretAnswer(line[22:].strip(), info)
+
     return
 
 
 def updatePlayerPosition(info, line):
     for x in line.split('  '):
         tmp = x.split('-')
-        info.playerList.changePlayerPlace(tmp[0], tmp[1], tmp[2])
+        info.playerList.changePlayerInfo(tmp[0], tmp[1], tmp[2])
 
 
 def diff(str1, str2) :
@@ -99,17 +136,74 @@ def diff(str1, str2) :
         x = x + 1
     return res
 
-def randomResponseTuiles(array) :
+def isThisPlayerAlone(array, player):
+    for p in array:
+        if p[0] != player[0] and int(p[1]) == player[1] :
+            return False
+    return True
+
+def howManySuspectAreAlone(array):
+    res = 0
+    for p in array:
+        if p[2] == 'suspect' and isThisPlayerAlone(array, p):
+            res = res + 1
+    return res
+
+def howManySuspect(array):
+    res = 0
+    for p in array:
+        if p[2] == 'suspect' :
+            res = res + 1
+    return res
+
+def howManyStillSuspect(info):
+    playerList = info.getPlayerList()
+    array = []
+    ghost = info.getGhost()
+    for color in playerList.getColorList():
+        res = playerList.getPlayerInfo(color)
+        res.insert(0, color)
+        if res[0] == ghost:
+            ghost = res
+        array.insert(0, res)
+    gAlone = isThisPlayerAlone(array, ghost)
+    sAlone = howManySuspectAreAlone(array)
+    if (gAlone):
+        return sAlone
+    else:
+        return howManySuspect(array) - sAlone
+
+def calculBestTuileF(info) :
+    i = 1
+    info = copy(info)
+    player = info.getCharacter()
+    playerList = info.getPlayerList()
+    playerInfo = playerList.getPlayerInfo(player)
+    suspect = 0
+    bestRoom = 0
+    for way in info.getWay(int(playerInfo[0])):
+        playerList.changePlayerPlace(player, way)
+        tmp = howManyStillSuspect(info)
+        if (tmp > suspect):
+            suspect = tmp
+            bestRoom = way
+    return str(bestRoom)
+
+
+def randomResponseTuiles(array, info) :
     lg = len(array)
     rd = randrange(lg)
+    for i in range(0, lg):
+        array[i] = array[i].strip()
     response = str(rd)
     sendResponse(response)
     characterPlayed = array[rd].split('-')[0]
-    return characterPlayed;
+    return characterPlayed
 
-def randomResponsePossibility(array) :
+def randomResponsePossibility(array, info) :
     lg = len(array)
-    response = array[randrange(lg)].strip()
+    #response = array[randrange(lg)].strip()
+    response = calculBestTuileF(info)
     sendResponse(response)
 
 def powerResponseRandom(nb) :
@@ -117,13 +211,13 @@ def powerResponseRandom(nb) :
     sendResponse(response)
 
 
-def extractTuile(string):
+def extractTuile(string, info):
     question = string.split('[')[1].split(']')[0]
-    return randomResponseTuiles(question.split(','))
+    return randomResponseTuiles(question.split(','), info)
 
-def extractPossibilities(string):
+def extractPossibilities(string, info):
     question = string.split('{')[1].split('}')[0]
-    randomResponsePossibility(question.split(','))
+    randomResponsePossibility(question.split(','), info)
 
 def purpleResponseRandom() :
     pos = ['gris', 'blanc', 'bleu', 'rouge', 'marron', 'noir', 'rose']
@@ -132,9 +226,9 @@ def purpleResponseRandom() :
 def questionParser(question, old_question, info) :
     if question != old_question and len(question) > 0:
         if  question.count('[') > 0:
-            info.changeCharacter(extractTuile(question))
+            info.changeCharacter(extractTuile(question, info))
         elif  question.count('{') > 0:
-            extractPossibilities(question)
+            extractPossibilities(question, info)
         elif "Voulez-vous activer le pouvoir" in question :
             powerResponseRandom(2)
         elif "obscurcir" in question :
@@ -154,6 +248,7 @@ def lancer():
     old_question = ""
 
     infoGlobal = InfoGlobal()
+    time.sleep(.05)
     while not fini:
         qf = open(path + '/questions.txt','r')
         question = qf.read()
@@ -162,7 +257,7 @@ def lancer():
         old_question = question
         infof = open(path + '/infos.txt','r')
         lines = infof.readlines()
-        info(diff(oldLines, lines), infoGlobal)
+        infoParser(diff(oldLines, lines), infoGlobal)
         oldLines = lines
         infof.close()
         if len(lines) > 0:
