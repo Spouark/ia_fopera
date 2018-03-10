@@ -71,6 +71,9 @@ class InfoGlobal :
     def setShadow(self, room):
         self.ombre = room
 
+    def setBloque(self, room, way):
+        self.bloque = {room, way}
+
     def setInfoTour(self, t, s, o, b):
         self.tour = t
         self.score = s
@@ -318,6 +321,7 @@ def selectPowOpt2Insp(tuiles, idx, info):
 
     if color == "rouge":
         return evalInsp(tuiles, idx, info) + 1.5
+
     if color == "noir":
         info_c = copy(info)
         playerList = info_c.playerList
@@ -338,6 +342,11 @@ def selectPowOpt2Insp(tuiles, idx, info):
     #             q.position = x
     #             informer("NOUVEAU PLACEMENT : "+str(q))
 
+    if color == 'blanc':
+        info_c = copy(info)
+        playerList = info_c.playerList
+        pos = playerList.getPlayerInfo(color)[0]
+
     if color == 'violet':
         colorList = info.playerList.colorList
         res = ''
@@ -351,15 +360,37 @@ def selectPowOpt2Insp(tuiles, idx, info):
             if (tmp_eval > bEval):
                 bEval = tmp_eval
                 res = color_n
-        if (color != ''):
+        if (res != ''):
+            info.toPlay.append(0)
             info.toPlay.append(res)
         return bEval
-
 
     # if color == "marron":
     #     return [q for q in party.personnages if p.position == q.position]
     if color == 'marron':
-        info_c = copy(info)
+        bEval = 0
+        usePower = 0
+        way = -1
+        for p in passages[pos]:
+            info_c = copy(info)
+            playerList = info_c.playerList
+            playerList.move(color, p)
+            tmp_eval = evalInsp(tuiles, idx, info_c)
+            if (tmp_eval > bEval):
+                bEval = tmp_eval
+                usePower = 0
+                way = p
+            for color_n in playerList.colorList :
+                if color_n != color and playerList.getPlayerInfo(color_n)[0] == pos:
+                    playerList.move(color_n, p)
+            tmp_eval = evalInsp(tuiles, idx, info_c)
+            if (tmp_eval > bEval):
+                bEval = tmp_eval
+                usePower = 1
+                way = p
+        info.toPlay.append(way)
+        info.toPlay.append(usePower)
+        return bEval
 
 
     if color == 'gris':
@@ -382,6 +413,22 @@ def selectPowOpt2Insp(tuiles, idx, info):
     #     y = int(w) if w.isnumeric() and int(w) in passages[x] else passages[x].copy().pop()
     #     informer("REPONSE INTERPRETEE : "+str({x,y}))
     #     party.bloque = {x,y}
+    if color == "bleu":
+        bEval = evalInsp(tuiles, idx, info)
+        usePower = 0
+        info_c = copy(info)
+        room = 0
+        way = 0
+        for (p, i) in enumerate(passages) :
+            for w in p :
+                info_c.setBloque(p, w)
+                tmp_eval = evalInsp(tuiles, idx, info_c)
+                if tmp_eval > bEval:
+                    bEval = tmp_eval
+                    usePower = 1
+                    room = i
+                    way = w
+
     return evalInsp(tuiles, idx, info)
 
 def selectPow2Insp(tuiles, idx, info):
