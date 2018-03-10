@@ -47,7 +47,7 @@ class InfoGlobal :
         self.tour = 0
         self.score = 0
         self.ombre = 0
-        self.bloque = ""
+        self.bloque = {1,2}
         self.playerList = PlayerList()
         self.lastQuestion = ""
         self.lastAnswer = ""
