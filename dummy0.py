@@ -1,15 +1,84 @@
 from random import randrange
+from copy import copy
 
 path ='./0'
+
+permanents, deux, avant, apres = {'rose'}, {'rouge','gris','bleu'}, {'violet','marron'}, {'noir','blanc'}
+couleurs = avant | permanents | apres | deux
+passages = [{1,4},{0,2},{1,3},{2,7},{0,5,8},{4,6},{5,7},{3,6,9},{4,9},{7,8}]
+pass_ext = [{1,4},{0,2,5,7},{1,3,6},{2,7},{0,5,8,9},{4,6,1,8},{5,7,2,9},{3,6,9,1},{4,9,5},{7,8,4,6}]
+
+class reminder:
+    def activer_pouvoir(self,p,party,activables):
+        if p.pouvoir and p.couleur in activables:
+            a = demander("Voulez-vous activer le pouvoir (0/1) ?",self) == "1"
+            informer("REPONSE INTERPRETEE : "+str(a==1))
+            if a :
+                informer("Pouvoir de " + p.couleur + " activé")
+                p.pouvoir = False
+                if p.couleur == "rouge":
+                    draw = party.cartes[0]
+                    informer(str(draw) + " a été tiré")
+                    if draw == "fantome":
+                        party.start += -1 if self.numero == 0 else 1
+                    elif self.numero == 0:
+                        draw.suspect = False
+                    del party.cartes[0]
+                if p.couleur == "noir":
+                    for q in party.personnages:
+                        if q.position in {x for x in passages[p.position] if x not in party.bloque or q.position not in party.bloque} :
+                            q.position = p.position
+                            informer("NOUVEAU PLACEMENT : "+str(q))
+                if p.couleur == "blanc":
+                    for q in party.personnages:
+                        if q.position == p.position and p != q:
+                            dispo = {x for x in passages[p.position] if x not in party.bloque or q.position not in party.bloque}
+                            w = demander(str(q) + ", positions disponibles : " + str(dispo) + ", choisir la valeur",self)
+                            x = int(w) if w.isnumeric() and int(w) in dispo else dispo.pop()
+                            informer("REPONSE INTERPRETEE : "+str(x))
+                            q.position = x
+                            informer("NOUVEAU PLACEMENT : "+str(q))
+                if p.couleur == "violet":
+                    informer("Rappel des positions :\n" + str(party))
+                    co = demander("Avec quelle couleur échanger (pas violet!) ?",self)
+                    if co not in couleurs:
+                        co = "rose"
+                    informer("REPONSE INTERPRETEE : "+co)
+                    q = [x for x in party.personnages if x.couleur == co][0]
+                    p.position, q.position = q.position, p.position
+                    informer("NOUVEAU PLACEMENT : "+str(p))
+                if p.couleur == "marron":
+                    return [q for q in party.personnages if p.position == q.position]
+                if p.couleur == "gris":
+                    w = demander("Quelle salle obscurcir ? (0-9)",self)
+                    party.shadow = int(w) if w.isnumeric() and int(w) in range(10) else (0)
+                    informer("REPONSE INTERPRETEE : "+str(party.shadow))
+                if p.couleur == "bleu":
+                    w = demander("Quelle salle bloquer ? (0-9)",self)
+                    x = int(w) if w.isnumeric() and int(w) in range(10) else 0
+                    w = demander("Quelle sortie ? Chosir parmi : "+str(passages[x]),self)
+                    y = int(w) if w.isnumeric() and int(w) in passages[x] else passages[x].copy().pop()
+                    informer("REPONSE INTERPRETEE : "+str({x,y}))
+                    party.bloque = {x,y}
+        return [p]
+
+
+
+
+
+
+
 
 class Player :
     def __init__(self):
         self.position = '0'
         self.status = 'suspect'
+        self.power = True
 
-    def update(self, position, status):
+    def update(self, position, status, power):
         self.position = position
         self.status = status
+        self.power = power
 
 class PlayerList :
     def __init__(self):
@@ -17,12 +86,12 @@ class PlayerList :
         for x in self.colorList:
             setattr(self, x, Player())
 
-    def changePlayerPlace(self, color, position, status):
-        getattr(self, color).update(position, status)
+    def changePlayerPlace(self, color, position, status, power):
+        getattr(self, color).update(int(position), status, power)
 
     def getPlayerInfo(self, color):
         p = getattr(self, color)
-        return [p.position, p.status]
+        return [p.position, p.status, p.power]
 
 class InfoGlobal :
     def __init__(self):
@@ -35,6 +104,7 @@ class InfoGlobal :
         self.playerList = PlayerList()
         self.lastQuestion = ""
         self.lastAnswer = ""
+        self.toPlay = []
 
     def changeCharacter(self, char):
         self.characterPlayed = char
@@ -76,9 +146,10 @@ def defineInfoTour(line, info):
     array = line.split(':')
     t = array[1].split(',')[0]
     s = array[2].split('/')[0]
-    o = array[3].split(',')[0]
+    o = int(array[3].split(',')[0])
     b = array[4]
-    info.setInfoTour(t,s,o,b)
+    b2 = {int(b[1]), int(b[4])}
+    info.setInfoTour(t,s,o,b2)
 
 def info(lines, info) :
     if (len(lines) > 0):
@@ -96,7 +167,7 @@ def info(lines, info) :
 def updatePlayerPosition(info, line):
     for x in line.split('  '):
         tmp = x.split('-')
-        info.playerList.changePlayerPlace(tmp[0], tmp[1], tmp[2])
+        info.playerList.changePlayerPlace(tmp[0], tmp[1], tmp[2], True)
 
 
 def diff(str1, str2) :
@@ -110,9 +181,151 @@ def diff(str1, str2) :
         x = x + 1
     return res
 
+
+
+
+
+
+
+
+def isThisPlayerAlone(array, player, ombre):
+    if player[1] == ombre:
+        return True
+    for p in array:
+        if p[0] != player[0] and int(p[1]) == player[1] :
+            return False
+    return True
+
+def howManySuspectAreAlone(array, ombre):
+    res = 0
+    for p in array:
+        if p[2] == 'suspect' and isThisPlayerAlone(array, p, ombre):
+            res = res + 1
+    return res
+
+def howManySuspect(array):
+    res = 0
+    for p in array:
+        if p[2] == 'suspect' :
+            res = res + 1
+    return res
+
+def evalInsp(tuiles, idx, info):
+    playerList = info.playerList
+    array = []
+    for color in playerList.colorList:
+        res = playerList.getPlayerInfo(color)
+        res.insert(0, color)
+        array.insert(0, res)
+    before = howManySuspect(array)
+    nohit = howManySuspectAreAlone(array, info.ombre)
+    hit = before - nohit
+    return hit * 2 - 1 if hit <= nohit else nohit * 2 #basic pondaration if hits and by remaining suspect
+
+def selectPowOpt2Insp(tuiles, idx, info):
+    return evalInsp(tuiles, idx, info)
+
+def selectPow2Insp(tuiles, idx, info):
+    color = tuiles[idx].strip().split('-')[0]
+    if color in apres|deux and not info.playerList.getPlayerInfo(color)[2]:
+        info2 = copy(info)
+        nopow_eval = evalInsp(tuiles, idx, info)
+        pow_eval = selectPowOpt2Insp(tuiles, idx, info2)
+        if pow_eval > nopow_eval:
+            info.toPlay = info2.toPlay
+            info.toPlay.append("1")
+            return pow_eval
+        info.toPlay.append("0")
+        return nopow_eval
+    return evalInsp(tuiles, idx, info)
+
+def selectMoveInsp(tuiles, idx, info):
+    color = tuiles[idx].strip().split('-')[0]
+    if color in avant and not info.playerList.getPlayerInfo(color)[2]:
+        return evalInsp(tuiles, idx, info)
+    pass_act = pass_ext if color == 'rose' else passages
+    plinfo = info.playerList.getPlayerInfo(color)
+    position = plinfo[0]
+    disp = [x for x in pass_act[position] if position not in info.bloque or x not in info.bloque]
+
+    info_cp = copy(info)
+    info_cp.playerList.changePlayerPlace(color, disp[0], plinfo[1], plinfo[2])
+    max_scr = selectPow2Insp(tuiles, idx, info_cp)
+    max_idx = 0
+    for i in range(1, len(disp)):
+        info_cp2 = copy(info)
+        info_cp2.playerList.changePlayerPlace(color, disp[i], plinfo[1], plinfo[2])
+        scr = selectPow2Insp(tuiles, idx, info_cp2)
+        if (scr > max_scr):
+            max_scr = scr
+            max_idx = i
+            info_cp = info_cp2
+    info.toPlay = info_cp.toPlay
+    info.toPlay.append(max_idx) ############################################################## CAREFUL, THIS IS THE LABEL, NOT THE ANSWER!!
+    return max_scr
+
+def selectPowOpt1Insp(tuiles, idx, info):
+    return selectMoveInsp(tuiles, idx, info)
+
+def selectPow1Insp(tuiles, idx, info):
+    color = tuiles[idx].strip().split('-')[0]
+    if color in avant|deux:
+        info2 = copy(info)
+        nopow_eval = selectMoveInsp(tuiles, idx, info)
+        pow_eval = selectPowOpt1Insp(tuiles, idx, info2)
+        if pow_eval > nopow_eval:
+            info.toPlay = info2.toPlay
+            info.toPlay.append("1")
+            return pow_eval
+        info.toPlay.append("0")
+        return nopow_eval
+    return selectMoveInsp(tuiles, idx, info)
+
+def select_firstInsp(tuiles, info):
+    info_cp = copy(info)
+    max_scr = selectPow1Insp(tuiles, 0, info_cp)
+    max_idx = 0
+    for i in range(1, 4):
+        info_cp2 = copy(info)
+        scr = selectPow1Insp(tuiles, i, info_cp2)
+        if (scr > max_scr):
+            max_scr = scr
+            max_idx = i
+            info_cp = info_cp2
+    info.toPlay = info_cp.toPlay
+    return max_idx
+
+def select_lastInsp(tuiles, info):
+    selectPow1Insp(tuiles, 0, info)
+    return 0
+
+def select_doubleInsp(tuiles, info):
+    info_cp = copy(info)
+    max_scr = selectPow1Insp(tuiles, 0, info_cp)
+    max_idx = 0
+    for i in range(1, len(tuiles)):
+        info_cp2 = copy(info)
+        scr = selectPow1Insp(tuiles, i, info_cp2)
+        if (scr > max_scr):
+            max_scr = scr
+            max_idx = i
+            info_cp = info_cp2
+    info.toPlay = info_cp.toPlay
+    return max_idx
+
+def findBestInsp(tuiles, info):
+    if len(tuiles) == 1:
+        return select_lastInsp(tuiles, info)
+    elif len(tuiles) == 4:
+        return select_firstInsp(tuiles, info)
+    else:
+        return select_doubleInsp(tuiles, info)
+    # return randrange(len(tuiles))
+
 def randomResponseTuiles(array) :
     lg = len(array)
-    rd = randrange(lg)
+    rd = findBestInsp(array, infoGlobal)
+    # rd = randrange(lg)
     response = str(rd)
     sendResponse(response)
     characterPlayed = array[rd].split('-')[0]
@@ -159,12 +372,12 @@ def questionParser(question, old_question, info) :
             rf.write(str(0))
             rf.close()
 
+infoGlobal = InfoGlobal()
 def lancer():
     oldLines =""
     fini = False
     old_question = ""
 
-    infoGlobal = InfoGlobal()
     while not fini:
         qf = open(path + '/questions.txt','r')
         question = qf.read()
