@@ -39,6 +39,9 @@ class PlayerList :
     def togglePlayerPow(self, color):
         return getattr(self, color).tooglePow()
 
+    def move(self, color, pos):
+        p = getattr(self, color)
+        p.update(pos, p.status, p.power)
 
 class InfoGlobal :
     def __init__(self):
@@ -64,6 +67,9 @@ class InfoGlobal :
 
     def getGhost(self):
         return self.ghost
+
+    def setShadow(self, room):
+        self.ombre = room
 
     def setInfoTour(self, t, s, o, b):
         self.tour = t
@@ -127,12 +133,6 @@ def diff(str1, str2) :
             res = res + str2[x]
         x = x + 1
     return res
-
-
-
-
-
-
 
 
 def isThisPlayerAlone(array, player, ombre):
@@ -313,6 +313,7 @@ def evalInsp(tuiles, idx, info):
 
 def selectPowOpt2Insp(tuiles, idx, info):
     color = tuiles[idx].strip().split('-')[0]
+    pos = int(tuiles[idx].strip().split('-')[1])
     info.playerList.togglePlayerPow(color)
 
     if color == "rouge":
@@ -322,6 +323,16 @@ def selectPowOpt2Insp(tuiles, idx, info):
     #         if q.position in {x for x in passages[p.position] if x not in party.bloque or q.position not in party.bloque} :
     #             q.position = p.position
     #             informer("NOUVEAU PLACEMENT : "+str(q))
+    if color == "noir":
+        info_c = copy(info)
+        playerList = info_c.playerList
+        colorList = info_c.playerList.colorList
+        for color_n in colorList:
+            info_player = playerList.getPlayerInfo(color_n)
+            if info_player[0] in passages[pos]:
+                playerList.move(color_n, pos)
+        return evalInsp(tuiles, idx, info)
+
     # if color == "blanc":
     #     for q in party.personnages:
     #         if q.position == p.position and p != q:
@@ -331,6 +342,7 @@ def selectPowOpt2Insp(tuiles, idx, info):
     #             informer("REPONSE INTERPRETEE : "+str(x))
     #             q.position = x
     #             informer("NOUVEAU PLACEMENT : "+str(q))
+
     # if color == "violet":
     #     informer("Rappel des positions :\n" + str(party))
     #     co = demander("Avec quelle couleur échanger (pas violet!) ?",self)
@@ -340,8 +352,42 @@ def selectPowOpt2Insp(tuiles, idx, info):
     #     q = [x for x in party.personnages if x.couleur == co][0]
     #     p.position, q.position = q.position, p.position
     #     informer("NOUVEAU PLACEMENT : "+str(p))
+    if color == 'violet':
+        colorList = info.playerList.colorList
+        res = ''
+        bEval = evalInsp(tuiles, idx, info)
+        for color_n in colorList:
+            info_c = copy(info)
+            p_info = info_c.playerList.getPlayerInfo(color_n)
+            info_c.playerList.move(color_n, pos)
+            info_c.playerList.move(color, p_info[0])
+            tmp_eval = evalInsp(tuiles, idx, info_c)
+            if (tmp_eval > bEval):
+                bEval = tmp_eval
+                res = color_n
+        if (color != ''):
+            info.toPlay.append(res)
+        return bEval
+
+
     # if color == "marron":
     #     return [q for q in party.personnages if p.position == q.position]
+    if color == 'marron':
+        info_c = copy(info)
+        colorList =
+    if color == 'gris':
+        info_c = copy(info)
+        bEval = evalInsp(tuiles, idx, info_c)
+        bRoom = pos
+        for i in range(0,9):
+            info_c.setShadow(i)
+            tmp_eval = evalInsp(tuiles, idx, info_c)
+            if (tmp_eval > bEval):
+                bEval = tmp_eval
+                bRoom = i
+        info.toPlay.append(bRoom)
+        return bEval
+
     # if color == "gris":
     #
     #     for value in variable:
@@ -349,6 +395,7 @@ def selectPowOpt2Insp(tuiles, idx, info):
     #     w = demander("Quelle salle obscurcir ? (0-9)",self)
     #     party.shadow = int(w) if w.isnumeric() and int(w) in range(10) else (0)
     #     informer("REPONSE INTERPRETEE : "+str(party.shadow))
+
     # if color == "bleu":
     #     w = demander("Quelle salle bloquer ? (0-9)",self)
     #     x = int(w) if w.isnumeric() and int(w) in range(10) else 0
