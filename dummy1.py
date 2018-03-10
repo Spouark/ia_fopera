@@ -467,9 +467,9 @@ def selectTuileInsp(tuiles, info):
 def randomResponseTuiles(array) :
     infoGlobal.toPlay = []
     lg = len(array)
-    selectTuileInsp(array, infoGlobal)
-    rd = infoGlobal.toPlay.pop()
-    # rd = randrange(lg)
+    # selectTuileInsp(array, infoGlobal)
+    # rd = infoGlobal.toPlay.pop()
+    rd = randrange(lg)
     response = str(rd)
     sendResponse(response)
     characterPlayed = array[rd].split('-')[0]
@@ -535,5 +535,3 @@ def lancer():
         infof.close()
         if len(lines) > 0:
             fini = "Score final" in lines[-1]
-
-
