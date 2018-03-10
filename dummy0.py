@@ -1,5 +1,6 @@
 from random import randrange
 from copy import copy
+import time
 
 path ='./0'
 
@@ -471,8 +472,9 @@ def randomResponsePossibility(array) :
     response = array[randrange(lg)].strip()
     sendResponse(response)
 
-def powerResponseRandom(nb) :
-    response = str(randrange(nb))
+def powerResponseRandom(question) :
+    print(question, infoGlobal.toPlay.pop())
+    response = str(randrange(2))
     sendResponse(response)
 
 
@@ -481,34 +483,41 @@ def extractTuile(string):
     return randomResponseTuiles(question.split(','))
 
 def extractPossibilities(string):
+    print(string, infoGlobal.toPlay.pop())
     question = string.split('{')[1].split('}')[0]
     randomResponsePossibility(question.split(','))
 
-def purpleResponseRandom() :
+def purpleResponseRandom(question) :
+    print(question, infoGlobal.toPlay.pop())
     pos = ['gris', 'blanc', 'bleu', 'rouge', 'marron', 'noir', 'rose']
     sendResponse(pos[randrange(7)])
 
 def questionParser(question, old_question, info) :
     if question != old_question and len(question) > 0:
+        print(question, infoGlobal.toPlay)
         if  question.count('[') > 0:
-            info.changeCharacter(extractTuile(question))
+            play = extractTuile(question)
+            info.changeCharacter(play)
+            print(question, play)
         elif  question.count('{') > 0:
             extractPossibilities(question)
         elif "Voulez-vous activer le pouvoir" in question :
-            powerResponseRandom(2)
+            powerResponseRandom(question)
         elif "obscurcir" in question :
-            powerResponseRandom(10)
+            powerResponseRandom(question)
         elif "bloquer" in question :
-            powerResponseRandom(10)
+            powerResponseRandom(question)
         elif "changer" in question :
-            purpleResponseRandom()
+            purpleResponseRandom(question)
         else :
+            print("Not parsed,", question, infoGlobal.toPlay.pop())
             rf = open(path + '/reponses.txt','w')
             rf.write(str(0))
             rf.close()
 
 infoGlobal = InfoGlobal()
 def lancer():
+    time.sleep(0.1)
     oldLines =""
     fini = False
     old_question = ""
