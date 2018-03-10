@@ -241,7 +241,9 @@ def selectPow2Fant(tuiles, idx, info):
         nopow_eval = evalFant(tuiles, idx, info)
         pow_eval = selectPowOpt2Fant(tuiles, idx, info2)
         if pow_eval > nopow_eval:
+            info.toPlay.append("1")
             return pow_eval
+            info.toPlay.append("0")
         return nopow_eval
     return evalFant(tuiles, idx, info)
 
@@ -278,7 +280,9 @@ def selectPow1Fant(tuiles, idx, info):
         nopow_eval = selectMoveFant(tuiles, idx, info)
         pow_eval = selectPowOpt1Fant(tuiles, idx, info2)
         if pow_eval > nopow_eval:
+            info.toPlay.append("1")
             return pow_eval
+        info.toPlay.append("0")
         return nopow_eval
     return selectMoveFant(tuiles, idx, info)
 
