@@ -8,67 +8,6 @@ couleurs = avant | permanents | apres | deux
 passages = [{1,4},{0,2},{1,3},{2,7},{0,5,8},{4,6},{5,7},{3,6,9},{4,9},{7,8}]
 pass_ext = [{1,4},{0,2,5,7},{1,3,6},{2,7},{0,5,8,9},{4,6,1,8},{5,7,2,9},{3,6,9,1},{4,9,5},{7,8,4,6}]
 
-class reminder:
-    def activer_pouvoir(self,p,party,activables):
-        if p.pouvoir and p.couleur in activables:
-            a = demander("Voulez-vous activer le pouvoir (0/1) ?",self) == "1"
-            informer("REPONSE INTERPRETEE : "+str(a==1))
-            if a :
-                informer("Pouvoir de " + p.couleur + " activé")
-                p.pouvoir = False
-                if p.couleur == "rouge":
-                    draw = party.cartes[0]
-                    informer(str(draw) + " a été tiré")
-                    if draw == "fantome":
-                        party.start += -1 if self.numero == 0 else 1
-                    elif self.numero == 0:
-                        draw.suspect = False
-                    del party.cartes[0]
-                if p.couleur == "noir":
-                    for q in party.personnages:
-                        if q.position in {x for x in passages[p.position] if x not in party.bloque or q.position not in party.bloque} :
-                            q.position = p.position
-                            informer("NOUVEAU PLACEMENT : "+str(q))
-                if p.couleur == "blanc":
-                    for q in party.personnages:
-                        if q.position == p.position and p != q:
-                            dispo = {x for x in passages[p.position] if x not in party.bloque or q.position not in party.bloque}
-                            w = demander(str(q) + ", positions disponibles : " + str(dispo) + ", choisir la valeur",self)
-                            x = int(w) if w.isnumeric() and int(w) in dispo else dispo.pop()
-                            informer("REPONSE INTERPRETEE : "+str(x))
-                            q.position = x
-                            informer("NOUVEAU PLACEMENT : "+str(q))
-                if p.couleur == "violet":
-                    informer("Rappel des positions :\n" + str(party))
-                    co = demander("Avec quelle couleur échanger (pas violet!) ?",self)
-                    if co not in couleurs:
-                        co = "rose"
-                    informer("REPONSE INTERPRETEE : "+co)
-                    q = [x for x in party.personnages if x.couleur == co][0]
-                    p.position, q.position = q.position, p.position
-                    informer("NOUVEAU PLACEMENT : "+str(p))
-                if p.couleur == "marron":
-                    return [q for q in party.personnages if p.position == q.position]
-                if p.couleur == "gris":
-                    w = demander("Quelle salle obscurcir ? (0-9)",self)
-                    party.shadow = int(w) if w.isnumeric() and int(w) in range(10) else (0)
-                    informer("REPONSE INTERPRETEE : "+str(party.shadow))
-                if p.couleur == "bleu":
-                    w = demander("Quelle salle bloquer ? (0-9)",self)
-                    x = int(w) if w.isnumeric() and int(w) in range(10) else 0
-                    w = demander("Quelle sortie ? Chosir parmi : "+str(passages[x]),self)
-                    y = int(w) if w.isnumeric() and int(w) in passages[x] else passages[x].copy().pop()
-                    informer("REPONSE INTERPRETEE : "+str({x,y}))
-                    party.bloque = {x,y}
-        return [p]
-
-
-
-
-
-
-
-
 class Player :
     def __init__(self):
         self.position = 0
