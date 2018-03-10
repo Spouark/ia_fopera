@@ -174,7 +174,7 @@ def evalFant(tuiles, idx, info):
         playerList = info.playerList
         array = []
         ghost = info.getGhost()
-        for color in playerList.getColorList():
+        for color in playerList.colorList():
             res = playerList.getPlayerInfo(color)
             res.insert(0, color)
             if res[0] == ghost:
@@ -533,19 +533,3 @@ def lancer():
             fini = "Score final" in lines[-1]
 
 
-def howManyStillSuspect(info):
-    playerList = info.getPlayerList()
-    array = []
-    ghost = info.getGhost()
-    for color in playerList.getColorList():
-        res = playerList.getPlayerInfo(color)
-        res.insert(0, color)
-        if res[0] == ghost:
-            ghost = res
-        array.insert(0, res)
-    gAlone = isThisPlayerAlone(array, ghost)
-    sAlone = howManySuspectAreAlone(array)
-    if (gAlone):
-        return (sAlone * 2) + 1
-    else:
-        return (howManySuspect(array) - sAlone) * 2
