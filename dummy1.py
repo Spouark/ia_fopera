@@ -171,7 +171,7 @@ def evalFant(tuiles, idx, info):
         del tuiles_c[idx]
         return selectTuileFant(tuiles_c, info)
     else:
-        playerList = info.getPlayerList()
+        playerList = info.playerList
         array = []
         ghost = info.getGhost()
         for color in playerList.getColorList():
