@@ -211,16 +211,29 @@ def howManySuspect(array):
     return res
 
 def evalInsp(tuiles, idx, info):
-    playerList = info.playerList
-    array = []
-    for color in playerList.colorList:
-        res = playerList.getPlayerInfo(color)
-        res.insert(0, color)
-        array.insert(0, res)
-    before = howManySuspect(array)
-    nohit = howManySuspectAreAlone(array, info.ombre)
-    hit = before - nohit
-    return hit * 2 - 1 if hit <= nohit else nohit * 2 #basic pondaration if hits and by remaining suspect
+    if len(tuiles) == 4:
+        tuiles_c = copy(tuiles)
+        tuiles_c.remove(tuiles_c[idx])
+        return findBestFant(tuiles_c, info)
+    elif len(tuiles) == 3:
+        tuiles_c = copy(tuiles)
+        tuiles_c.remove(tuiles_c[idx])
+        return findBestInsp(tuiles_c, info)
+    elif len(tuiles) == 2:
+        tuiles_c = copy(tuiles)
+        tuiles_c.remove(tuiles_c[idx])
+        return findBestFant(tuiles_c, info)
+    else:
+        playerList = info.playerList
+        array = []
+        for color in playerList.colorList:
+            res = playerList.getPlayerInfo(color)
+            res.insert(0, color)
+            array.insert(0, res)
+        before = howManySuspect(array)
+        nohit = howManySuspectAreAlone(array, info.ombre)
+        hit = before - nohit
+        return hit * 2 - 1 if hit <= nohit else nohit * 2 #basic pondaration if hits and by remaining suspect
 
 def selectPowOpt2Insp(tuiles, idx, info):
     return evalInsp(tuiles, idx, info)
