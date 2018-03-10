@@ -318,11 +318,6 @@ def selectPowOpt2Insp(tuiles, idx, info):
 
     if color == "rouge":
         return evalInsp(tuiles, idx, info) + 1.5
-    # if color == "noir":
-    #     for q in party.personnages:
-    #         if q.position in {x for x in passages[p.position] if x not in party.bloque or q.position not in party.bloque} :
-    #             q.position = p.position
-    #             informer("NOUVEAU PLACEMENT : "+str(q))
     if color == "noir":
         info_c = copy(info)
         playerList = info_c.playerList
@@ -343,15 +338,6 @@ def selectPowOpt2Insp(tuiles, idx, info):
     #             q.position = x
     #             informer("NOUVEAU PLACEMENT : "+str(q))
 
-    # if color == "violet":
-    #     informer("Rappel des positions :\n" + str(party))
-    #     co = demander("Avec quelle couleur échanger (pas violet!) ?",self)
-    #     if co not in couleurs:
-    #         co = "rose"
-    #     informer("REPONSE INTERPRETEE : "+co)
-    #     q = [x for x in party.personnages if x.couleur == co][0]
-    #     p.position, q.position = q.position, p.position
-    #     informer("NOUVEAU PLACEMENT : "+str(p))
     if color == 'violet':
         colorList = info.playerList.colorList
         res = ''
@@ -374,7 +360,8 @@ def selectPowOpt2Insp(tuiles, idx, info):
     #     return [q for q in party.personnages if p.position == q.position]
     if color == 'marron':
         info_c = copy(info)
-        colorList =
+
+
     if color == 'gris':
         info_c = copy(info)
         bEval = evalInsp(tuiles, idx, info_c)
@@ -387,14 +374,6 @@ def selectPowOpt2Insp(tuiles, idx, info):
                 bRoom = i
         info.toPlay.append(bRoom)
         return bEval
-
-    # if color == "gris":
-    #
-    #     for value in variable:
-    #         pass
-    #     w = demander("Quelle salle obscurcir ? (0-9)",self)
-    #     party.shadow = int(w) if w.isnumeric() and int(w) in range(10) else (0)
-    #     informer("REPONSE INTERPRETEE : "+str(party.shadow))
 
     # if color == "bleu":
     #     w = demander("Quelle salle bloquer ? (0-9)",self)
