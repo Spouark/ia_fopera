@@ -372,7 +372,6 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
             for c in characters:
                 chars.append(c)
                 move = sample(possibles, 1)[0]
-                print(move)
                 info_c.playerList.move(c, move)
                 moves.append(move)
             tmp_eval = evalInsp(tuiles, idx, info_c)
@@ -380,7 +379,7 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
                 bEval = tmp_eval
                 bresp = []
                 for (i,c) in enumerate(chars):
-                    bresp.append(c + ':' + moves[i])
+                    bresp.append(c + ':' + str(moves[i]))
         for r in bresp:
             info.toPlay.append(r)
         return bEval
