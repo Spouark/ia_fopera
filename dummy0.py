@@ -357,8 +357,30 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
 
     if color == 'blanc':
         info_c = deepcopy(info)
-        playerList = info_c.playerList
-        pos = playerList.getPlayerInfo(color)[0]
+        possibles = passages[pos]
+        characters = []
+        bEval = nopow_eval
+        bresp = []
+        for c in info_c.playerList.colorList:
+            if c != color and info_c.playerList.getPlayerInfo(c)[0] == pos:
+                characters.append(c)
+        for x in range(0,3):
+            chars = []
+            moves = []
+            for c in characters:
+                chars.append(c)
+                move = possibles[randrange(len(possibles))]
+                info_c.playerList.move(c, move)
+                moves.appedn(move)
+            tmp_eval = evalInsp(tuiles, idx, info_c)
+            if (tmp_eval >= bEval):
+                bEval = tmp_eval
+                bresp = []
+                for (i,c) in chars:
+                    bresp.append(c + ':' + moves[i])
+        for r in bresp:
+            info.toPlay.append(r)
+        return bEval
 
     if color == 'violet':
         colorList = info.playerList.colorList
