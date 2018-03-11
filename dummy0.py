@@ -418,7 +418,7 @@ def selectPowOpt2Insp(tuiles, idx, info):
     #     informer("REPONSE INTERPRETEE : "+str({x,y}))
     #     party.bloque = {x,y}
     if color == "bleu":
-        bEval = evalInsp(tuiles, idx, info)
+        bEval = -1000
         usePower = 0
         info_c = deepcopy(info)
         room = 0
@@ -433,6 +433,8 @@ def selectPowOpt2Insp(tuiles, idx, info):
                         usePower = 1
                         room = i
                         way = w
+        info.toPlay.append(room)
+        info.toPlay.append(way)
 
     return evalInsp(tuiles, idx, info)
 
