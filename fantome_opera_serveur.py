@@ -204,4 +204,4 @@ try:
         t2.join()
 finally:
     victoires = [x for x in score if x<=0]
-    print("Efficacité : "+str(len(victoires)/len(score)*100)+"%")
+    print("Efficacité du fantome: "+str(len(victoires)/len(score)*100)+"%")

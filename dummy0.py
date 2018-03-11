@@ -339,7 +339,8 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
         return nopow_eval + 1.5
 
     if color == "noir":
-        info_c = deepcopy(info)
+        info_c = copy(info)
+        info_c.playerList = copy(info.playerList)
         playerList = info_c.playerList
         colorList = info_c.playerList.colorList
         for color_n in colorList:
@@ -359,7 +360,8 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
     #             informer("NOUVEAU PLACEMENT : "+str(q))
 
     if color == 'blanc':
-        info_c = deepcopy(info)
+        info_c = copy(info)
+        info_c.playerList = copy(info.playerList)
         possibles = {p for p in passages[pos] if not info_c.bloque.issubset({p, pos})}
         characters = []
         bEval = nopow_eval
@@ -390,7 +392,8 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
         res = ''
         bEval = nopow_eval
         for color_n in colorList:
-            info_c = deepcopy(info)
+            info_c = copy(info)
+            info_c.playerList = copy(info.playerList)
             p_info = info_c.playerList.getPlayerInfo(color_n)
             info_c.playerList.move(color_n, pos)
             info_c.playerList.move(color, p_info[0])
@@ -411,7 +414,8 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
         way = -1
         for p in passages[pos]:
             if not info.bloque.issubset({pos, p}):
-                info_c = deepcopy(info)
+                info_c = copy(info)
+                info_c.playerList = copy(info.playerList)
                 playerList = info_c.playerList
                 playerList.move(color, p)
                 for color_n in playerList.colorList :
@@ -429,7 +433,7 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
 
 
     if color == 'gris':
-        info_c = deepcopy(info)
+        info_c = copy(info)
         bEval = nopow_eval
         bRoom = pos
         for i in range(0,9):
@@ -445,7 +449,7 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
     if color == "bleu":
         bEval = nopow_eval
         usePower = 0
-        info_c = deepcopy(info)
+        info_c = copy(info)
         room = 0
         way = 0
         for (i, p) in enumerate(passages) :
@@ -505,7 +509,7 @@ def selectMoveInsp(tuiles, idx, info):
             max_idx = i
             info_cp = info_cp2
     info.setToPlay(info_cp.toPlay)
-    info.toPlay.append(disp[max_idx]) ############################################################## CAREFUL, THIS IS THE LABEL, NOT THE ANSWER!!
+    info.toPlay.append(disp[max_idx])
     return max_scr
 
 def selectPowOpt1Insp(tuiles, idx, info, nopow_eval):
@@ -585,13 +589,13 @@ def purpleResponseRandom(question) :
 
 def questionParser(question, old_question, info) :
     if question != old_question and len(question) > 0:
-        # print(question, infoGlobal.toPlay)
+        print(question, infoGlobal.toPlay)
         try:
             if  question.count('[') > 0:
                 start = time.time()
                 play = extractTuile(question)
                 info.changeCharacter(play)
-                # print(question, play, infoGlobal.toPlay)
+                print(question, play, infoGlobal.toPlay)
                 end = time.time()
                 print("           ", question, end - start)
             elif  question.count('{') > 0:
