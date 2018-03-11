@@ -185,7 +185,7 @@ def evalFant(tuiles, idx, info):
         hit = before - nohit
         return hit * 2 - 1 if hit <= nohit else nohit * 2 #basic pondaration if hits and by remaining suspect
 
-def selectPowOpt2Fant(tuiles, idx, info):
+def selectPowOpt2Fant(tuiles, idx, info, nopow_eval):
     color = tuiles[idx].strip().split('-')[0]
     info.playerList.togglePlayerPow(color)
 
@@ -237,7 +237,7 @@ def selectPow2Fant(tuiles, idx, info):
     if color in apres|deux and not info.playerList.getPlayerInfo(color)[2]:
         info2 = deepcopy(info)
         nopow_eval = evalFant(tuiles, idx, info)
-        pow_eval = selectPowOpt2Fant(tuiles, idx, info2)
+        pow_eval = selectPowOpt2Fant(tuiles, idx, info2, nopow_eval)
         if pow_eval < nopow_eval:
             return pow_eval
         return nopow_eval
@@ -266,7 +266,7 @@ def selectMoveFant(tuiles, idx, info):
             info_cp = info_cp2
     return max_scr
 
-def selectPowOpt1Fant(tuiles, idx, info):
+def selectPowOpt1Fant(tuiles, idx, info, nopow_eval):
     return selectMoveFant(tuiles, idx, info)
 
 def selectPow1Fant(tuiles, idx, info):
@@ -274,7 +274,7 @@ def selectPow1Fant(tuiles, idx, info):
     if color in avant|deux:
         info2 = deepcopy(info)
         nopow_eval = selectMoveFant(tuiles, idx, info)
-        pow_eval = selectPowOpt1Fant(tuiles, idx, info2)
+        pow_eval = selectPowOpt1Fant(tuiles, idx, info2, nopow_eval)
         if pow_eval < nopow_eval:
             return pow_eval
         return nopow_eval
@@ -318,7 +318,7 @@ def evalInsp(tuiles, idx, info):
         hit = before - nohit
         return hit * 2 - 1 if hit <= nohit else nohit * 2 #basic pondaration if hits and by remaining suspect
 
-def selectPowOpt2Insp(tuiles, idx, info):
+def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
     color = tuiles[idx].strip().split('-')[0]
     pos = int(tuiles[idx].strip().split('-')[1])
     info.playerList.togglePlayerPow(color)
@@ -407,13 +407,6 @@ def selectPowOpt2Insp(tuiles, idx, info):
         info.toPlay.append(bRoom)
         return bEval
 
-    # if color == "bleu":
-    #     w = demander("Quelle salle bloquer ? (0-9)",self)
-    #     x = int(w) if w.isnumeric() and int(w) in range(10) else 0
-    #     w = demander("Quelle sortie ? Chosir parmi : "+str(passages[x]),self)
-    #     y = int(w) if w.isnumeric() and int(w) in passages[x] else passages[x].deepcopy().pop()
-    #     informer("REPONSE INTERPRETEE : "+str({x,y}))
-    #     party.bloque = {x,y}
     if color == "bleu":
         bEval = -1000
         usePower = 0
@@ -440,7 +433,7 @@ def selectPow2Insp(tuiles, idx, info):
     if (color in apres|deux) and (info.playerList.getPlayerInfo(color)[2]):
         info2 = deepcopy(info)
         nopow_eval = evalInsp(tuiles, idx, info)
-        pow_eval = selectPowOpt2Insp(tuiles, idx, info2)
+        pow_eval = selectPowOpt2Insp(tuiles, idx, info2, nopow_eval)
         if pow_eval > nopow_eval:
             info.setToPlay(info2.toPlay)
             info.toPlay.append("1")
@@ -474,7 +467,7 @@ def selectMoveInsp(tuiles, idx, info):
     info.toPlay.append(disp[max_idx]) ############################################################## CAREFUL, THIS IS THE LABEL, NOT THE ANSWER!!
     return max_scr
 
-def selectPowOpt1Insp(tuiles, idx, info):
+def selectPowOpt1Insp(tuiles, idx, info, nopow_eval):
     return selectMoveInsp(tuiles, idx, info)
 
 def selectPow1Insp(tuiles, idx, info):
@@ -482,7 +475,7 @@ def selectPow1Insp(tuiles, idx, info):
     if color in avant|deux:
         info2 = deepcopy(info)
         nopow_eval = selectMoveInsp(tuiles, idx, info)
-        pow_eval = selectPowOpt1Insp(tuiles, idx, info2)
+        pow_eval = selectPowOpt1Insp(tuiles, idx, info2, nopow_eval)
         if pow_eval > nopow_eval:
             info.setToPlay(info2.toPlay)
             info.toPlay.append("1")
