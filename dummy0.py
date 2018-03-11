@@ -261,7 +261,7 @@ def selectMoveFant(tuiles, idx, info):
     max_idx = 0
     for i in range(1, len(disp)):
         info_cp2 = copy(info)
-        info_cp2.playerList = copy(info.playerList)
+        info_cp2.playerList = deepcopy(info.playerList)
         info_cp2.playerList.changePlayerPlace(color, disp[i], plinfo[1], plinfo[2])
         scr = selectPow2Fant(tuiles, idx, info_cp2)
         if (scr < max_scr):
@@ -304,19 +304,19 @@ def evalInsp(tuiles, idx, info):
         tuiles_c = copy(tuiles)
         del tuiles_c[idx]
         info.toPlay = copy(info.toPlay)
-        info.playerList = copy(info.playerList)
+        info.playerList = deepcopy(info.playerList)
         return selectTuileFant(tuiles_c, info)
     elif len(tuiles) == 3:
         tuiles_c = copy(tuiles)
         del tuiles_c[idx]
         info.toPlay = copy(info.toPlay)
-        info.playerList = copy(info.playerList)
+        info.playerList = deepcopy(info.playerList)
         return selectTuileInsp(tuiles_c, info)
     elif len(tuiles) == 2:
         tuiles_c = copy(tuiles)
         del tuiles_c[idx]
         info.toPlay = copy(info.toPlay)
-        info.playerList = copy(info.playerList)
+        info.playerList = deepcopy(info.playerList)
         return selectTuileFant(tuiles_c, info)
     else:
         playerList = info.playerList
@@ -340,7 +340,7 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
 
     if color == "noir":
         info_c = copy(info)
-        info_c.playerList = copy(info.playerList)
+        info_c.playerList = deepcopy(info.playerList)
         playerList = info_c.playerList
         colorList = info_c.playerList.colorList
         for color_n in colorList:
@@ -361,7 +361,7 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
 
     if color == 'blanc':
         info_c = copy(info)
-        info_c.playerList = copy(info.playerList)
+        info_c.playerList = deepcopy(info.playerList)
         possibles = {p for p in passages[pos] if not info_c.bloque.issubset({p, pos})}
         characters = []
         bEval = nopow_eval
@@ -393,7 +393,7 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
         bEval = nopow_eval
         for color_n in colorList:
             info_c = copy(info)
-            info_c.playerList = copy(info.playerList)
+            info_c.playerList = deepcopy(info.playerList)
             p_info = info_c.playerList.getPlayerInfo(color_n)
             info_c.playerList.move(color_n, pos)
             info_c.playerList.move(color, p_info[0])
@@ -415,7 +415,7 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
         for p in passages[pos]:
             if not info.bloque.issubset({pos, p}):
                 info_c = copy(info)
-                info_c.playerList = copy(info.playerList)
+                info_c.playerList = deepcopy(info.playerList)
                 playerList = info_c.playerList
                 playerList.move(color, p)
                 for color_n in playerList.colorList :
@@ -494,14 +494,14 @@ def selectMoveInsp(tuiles, idx, info):
 
     info_cp = copy(info)
     info_cp.toPlay = copy(info.toPlay)
-    info_cp.playerList = copy(info.playerList)
+    info_cp.playerList = deepcopy(info.playerList)
     info_cp.playerList.changePlayerPlace(color, disp[0], plinfo[1], plinfo[2])
     max_scr = selectPow2Insp(tuiles, idx, info_cp)
     max_idx = 0
     for i in range(1, len(disp)):
         info_cp2 = copy(info)
         info_cp2.toPlay = copy(info.toPlay)
-        info_cp2.playerList = copy(info.playerList)
+        info_cp2.playerList = deepcopy(info.playerList)
         info_cp2.playerList.changePlayerPlace(color, disp[i], plinfo[1], plinfo[2])
         scr = selectPow2Insp(tuiles, idx, info_cp2)
         if (scr > max_scr):
