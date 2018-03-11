@@ -379,7 +379,7 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
             if (tmp_eval >= bEval):
                 bEval = tmp_eval
                 bresp = []
-                for (i,c) in chars:
+                for (i,c) in enumerate(chars):
                     bresp.append(c + ':' + moves[i])
         for r in bresp:
             info.toPlay.append(r)
