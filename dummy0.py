@@ -343,7 +343,7 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
         colorList = info_c.playerList.colorList
         for color_n in colorList:
             info_player = playerList.getPlayerInfo(color_n)
-            if info_player[0] in passages[pos] and not info.bloque.isSubset({pos, info_player[0]}):
+            if info_player[0] in passages[pos] and not info.bloque.issubset({pos, info_player[0]}):
                 playerList.move(color_n, pos)
         return evalInsp(tuiles, idx, info)
 
@@ -359,7 +359,7 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
 
     if color == 'blanc':
         info_c = deepcopy(info)
-        possibles = passages[pos]
+        possibles = {p for p in passages[pos] if not info_c.bloque.issubset({p, pos})}
         characters = []
         bEval = nopow_eval
         bresp = []
@@ -409,7 +409,7 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
         usePower = 0
         way = -1
         for p in passages[pos]:
-            if not info.bloque.isSubset({pos, p}):
+            if not info.bloque.issubset({pos, p}):
                 info_c = deepcopy(info)
                 playerList = info_c.playerList
                 playerList.move(color, p)
