@@ -1,6 +1,7 @@
 from random import randrange, sample
 from copy import deepcopy, copy
 import time
+import traceback
 
 path ='./0'
 
@@ -458,6 +459,7 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
                         way = w
         info.toPlay.append(room)
         info.toPlay.append(way)
+        return bEval
 
     return evalInsp(tuiles, idx, info)
 
@@ -466,7 +468,6 @@ def selectPow2Insp(tuiles, idx, info):
     if (color in apres|deux) and (info.playerList.getPlayerInfo(color)[2]):
         info2 = copy(info)
         info2.toPlay = copy(info.toPlay)
-        info2.playerList = copy(info.playerList)
         nopow_eval = evalInsp(tuiles, idx, info)
         pow_eval = selectPowOpt2Insp(tuiles, idx, info2, nopow_eval)
         if pow_eval > nopow_eval:
@@ -578,34 +579,39 @@ def extractPossibilities(string):
 def purpleResponseRandom(question) :
     resp = infoGlobal.toPlay.pop()
     # print(question, resp)
-    pos = ['gris', 'blanc', 'bleu', 'rouge', 'marron', 'noir', 'rose']
-    sendResponse(resp)
+    # pos = ['gris', 'blanc', 'bleu', 'rouge', 'marron', 'noir', 'rose']
+    sendResponse(str(resp))
 
 def questionParser(question, old_question, info) :
     if question != old_question and len(question) > 0:
         # print(question, infoGlobal.toPlay)
-        if  question.count('[') > 0:
-            start = time.time()
-            play = extractTuile(question)
-            info.changeCharacter(play)
-            # print(question, play)
-            end = time.time()
-            print("           ", question, end - start)
-        elif  question.count('{') > 0:
-            extractPossibilities(question)
-        elif "Voulez-vous activer le pouvoir" in question :
-            powerResponseRandom(question)
-        elif "obscurcir" in question :
-            powerResponseRandom(question)
-        elif "bloquer" in question :
-            powerResponseRandom(question)
-        elif "changer" in question :
-            purpleResponseRandom(question)
-        else :
-            # print("Not parsed,", question, infoGlobal.toPlay[-1])
-            rf = open(path + '/reponses.txt','w')
-            rf.write(str(0))
-            rf.close()
+        try:
+            if  question.count('[') > 0:
+                start = time.time()
+                play = extractTuile(question)
+                info.changeCharacter(play)
+                # print(question, play, infoGlobal.toPlay)
+                end = time.time()
+                print("           ", question, end - start)
+            elif  question.count('{') > 0:
+                extractPossibilities(question)
+            elif "Voulez-vous activer le pouvoir" in question :
+                powerResponseRandom(question)
+            elif "obscurcir" in question :
+                powerResponseRandom(question)
+            elif "bloquer" in question :
+                powerResponseRandom(question)
+            elif "changer" in question :
+                purpleResponseRandom(question)
+            else :
+                # print("Not parsed,", question, infoGlobal.toPlay[-1])
+                rf = open(path + '/reponses.txt','w')
+                rf.write(str(0))
+                rf.close()
+        except IndexError:
+            print("*** WARN: ***")
+            traceback.print_exc()
+            print("*************")
 
 infoGlobal = InfoGlobal()
 def lancer():

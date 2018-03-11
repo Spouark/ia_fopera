@@ -3,7 +3,7 @@ from time import sleep
 from threading import Thread
 import dummy0, dummy1
 
-latence = 1
+latence = 0.1
 permanents, deux, avant, apres = {'rose'}, {'rouge','gris','bleu'}, {'violet','marron'}, {'noir','blanc'}
 couleurs = avant | permanents | apres | deux
 passages = [{1,4},{0,2},{1,3},{2,7},{0,5,8},{4,6},{5,7},{3,6,9},{4,9},{7,8}]
@@ -187,13 +187,21 @@ class partie:
         else:
             print('Insp wins')
         informer("Score final : "+str(self.end-self.start))
+        return self.end-self.start
     def __repr__(self):
         return "Tour:" + str(self.num_tour) + ", Score:"+str(self.start)+"/"+str(self.end) + ", Ombre:" + str(self.shadow) + ", Bloque:" + str(self.bloque) +"\n" + "  ".join([str(p) for p in self.personnages])
 
-index = 0
-while index < 1:
-    joueurs = [joueur(0),joueur(1)]
-    Thread(target=dummy0.lancer).start()
-    Thread(target=dummy1.lancer).start()
-    partie(joueurs).lancer()
-    index = index + 1
+score = []
+joueurs = [joueur(0),joueur(1)]
+nbparties = 1000
+try:
+    for i in range(nbparties):
+        t1,t2 = Thread(target=dummy0.lancer), Thread(target=dummy1.lancer)
+        t1.start()
+        t2.start()
+        score.append(partie(joueurs).lancer())
+        t1.join()
+        t2.join()
+finally:
+    victoires = [x for x in score if x<=0]
+    print("Efficacité : "+str(len(victoires)/len(score)*100)+"%")
