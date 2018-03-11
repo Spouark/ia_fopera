@@ -1,4 +1,4 @@
-from random import randrange
+from random import randrange, sample
 from copy import deepcopy, copy
 import time
 
@@ -371,9 +371,10 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
             moves = []
             for c in characters:
                 chars.append(c)
-                move = possibles[randrange(len(possibles))]
+                move = sample(possibles, 1)[0]
+                print(move)
                 info_c.playerList.move(c, move)
-                moves.appedn(move)
+                moves.append(move)
             tmp_eval = evalInsp(tuiles, idx, info_c)
             if (tmp_eval >= bEval):
                 bEval = tmp_eval
