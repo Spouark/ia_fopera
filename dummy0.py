@@ -168,10 +168,12 @@ def evalFant(tuiles, idx, info):
     if len(tuiles) == 3:
         tuiles_c = copy(tuiles)
         del tuiles_c[idx]
+        info.toPlay = copy(info.toPlay)
         return selectTuileFant(tuiles_c, info)
     elif len(tuiles) == 2:
         tuiles_c = copy(tuiles)
         del tuiles_c[idx]
+        info.toPlay = copy(info.toPlay)
         return selectTuileInsp(tuiles_c, info)
     else:
         playerList = info.playerList
