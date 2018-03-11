@@ -355,7 +355,7 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
         for c in info_c.playerList.colorList:
             if c != color and info_c.playerList.getPlayerInfo(c)[0] == pos:
                 characters.append(c)
-        for i in range(0,3):
+        for x in range(0,3):
             chars = []
             moves = []
             for c in characters:
