@@ -402,7 +402,6 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
                 bEval = tmp_eval
                 res = color_n
         if (res != ''):
-            info.toPlay.append(0)
             info.toPlay.append(res)
         return bEval
 
@@ -428,7 +427,6 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
                     way = p
         if (way != -1):
             info.toPlay.append(way)
-        info.toPlay.append(usePower)
         return bEval
 
 
@@ -462,8 +460,9 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
                         usePower = 1
                         room = i
                         way = w
-        info.toPlay.append(room)
-        info.toPlay.append(way)
+        if (bEval > nopow_eval):
+            info.toPlay.append(room)
+            info.toPlay.append(way)
         return bEval
 
     return evalInsp(tuiles, idx, info)
@@ -585,6 +584,7 @@ def purpleResponseRandom(question) :
     resp = infoGlobal.toPlay.pop()
     # print(question, resp)
     # pos = ['gris', 'blanc', 'bleu', 'rouge', 'marron', 'noir', 'rose']
+    print(resp)
     sendResponse(str(resp))
 
 def questionParser(question, old_question, info) :
