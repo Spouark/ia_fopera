@@ -204,7 +204,7 @@ def selectPowOpt2Fant(tuiles, idx, info):
             info_player = playerList.getPlayerInfo(color_n)
             if info_player[0] in passages[pos] and not info.bloque.issubset({pos, info_player[0]}):
                 playerList.move(color_n, pos)
-        return evalFant(tuiles, idx, info)
+        return evalFant(tuiles, idx, info_c)
 
     # if color == "blanc":
     #     for q in party.personnages:
