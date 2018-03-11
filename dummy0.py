@@ -28,6 +28,7 @@ class Player :
 class PlayerList :
     def __init__(self):
         self.colorList = ['gris', 'blanc', 'bleu', 'rouge', 'marron', 'noir', 'rose', 'violet']
+
         for x in self.colorList:
             setattr(self, x, Player())
 
@@ -194,45 +195,6 @@ def selectPowOpt2Fant(tuiles, idx, info, nopow_eval):
 
     if color == "rouge":
         return evalFant(tuiles, idx, info) - 1.5
-    # if color == "noir":
-    #     for q in party.personnages:
-    #         if q.position in {x for x in passages[p.position] if x not in party.bloque or q.position not in party.bloque} :
-    #             q.position = p.position
-    #             informer("NOUVEAU PLACEMENT : "+str(q))
-    # if color == "blanc":
-    #     for q in party.personnages:
-    #         if q.position == p.position and p != q:
-    #             dispo = {x for x in passages[p.position] if x not in party.bloque or q.position not in party.bloque}
-    #             w = demander(str(q) + ", positions disponibles : " + str(dispo) + ", choisir la valeur",self)
-    #             x = int(w) if w.isnumeric() and int(w) in dispo else dispo.pop()
-    #             informer("REPONSE INTERPRETEE : "+str(x))
-    #             q.position = x
-    #             informer("NOUVEAU PLACEMENT : "+str(q))
-    # if color == "violet":
-    #     informer("Rappel des positions :\n" + str(party))
-    #     co = demander("Avec quelle couleur échanger (pas violet!) ?",self)
-    #     if co not in couleurs:
-    #         co = "rose"
-    #     informer("REPONSE INTERPRETEE : "+co)
-    #     q = [x for x in party.personnages if x.couleur == co][0]
-    #     p.position, q.position = q.position, p.position
-    #     informer("NOUVEAU PLACEMENT : "+str(p))
-    # if color == "marron":
-    #     return [q for q in party.personnages if p.position == q.position]
-    # if color == "gris":
-    #
-    #     for value in variable:
-    #         pass
-    #     w = demander("Quelle salle obscurcir ? (0-9)",self)
-    #     party.shadow = int(w) if w.isnumeric() and int(w) in range(10) else (0)
-    #     informer("REPONSE INTERPRETEE : "+str(party.shadow))
-    # if color == "bleu":
-    #     w = demander("Quelle salle bloquer ? (0-9)",self)
-    #     x = int(w) if w.isnumeric() and int(w) in range(10) else 0
-    #     w = demander("Quelle sortie ? Chosir parmi : "+str(passages[x]),self)
-    #     y = int(w) if w.isnumeric() and int(w) in passages[x] else passages[x].copy().pop()
-    #     informer("REPONSE INTERPRETEE : "+str({x,y}))
-    #     party.bloque = {x,y}
     return evalFant(tuiles, idx, info)
 
 def selectPow2Fant(tuiles, idx, info):
@@ -255,7 +217,7 @@ def selectMoveFant(tuiles, idx, info):
     disp = [x for x in pass_act[position] if position not in info.bloque or x not in info.bloque]
 
     info_cp = copy(info)
-    info_cp.playerList = copy(info_cp.playerList)
+    info_cp.playerList = deepcopy(info_cp.playerList)
     info_cp.playerList.changePlayerPlace(color, disp[0], plinfo[1], plinfo[2])
     max_scr = selectPow2Fant(tuiles, idx, info_cp)
     max_idx = 0
@@ -347,17 +309,7 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
             info_player = playerList.getPlayerInfo(color_n)
             if info_player[0] in passages[pos] and not info.bloque.issubset({pos, info_player[0]}):
                 playerList.move(color_n, pos)
-        return evalInsp(tuiles, idx, info)
-
-    # if color == "blanc":
-    #     for q in party.personnages:
-    #         if q.position == p.position and p != q:
-    #             dispo = {x for x in passages[p.position] if x not in party.bloque or q.position not in party.bloque}
-    #             w = demander(str(q) + ", positions disponibles : " + str(dispo) + ", choisir la valeur",self)
-    #             x = int(w) if w.isnumeric() and int(w) in dispo else dispo.pop()
-    #             informer("REPONSE INTERPRETEE : "+str(x))
-    #             q.position = x
-    #             informer("NOUVEAU PLACEMENT : "+str(q))
+        return evalInsp(tuiles, idx, info_c)
 
     if color == 'blanc':
         info_c = copy(info)
@@ -402,7 +354,6 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
                 bEval = tmp_eval
                 res = color_n
         if (res != ''):
-            info.toPlay.append(0)
             info.toPlay.append(res)
         return bEval
 
@@ -513,6 +464,128 @@ def selectMoveInsp(tuiles, idx, info):
     return max_scr
 
 def selectPowOpt1Insp(tuiles, idx, info, nopow_eval):
+    color = tuiles[idx].strip().split('-')[0]
+    pos = int(tuiles[idx].strip().split('-')[1])
+    info.playerList.togglePlayerPow(color)
+
+    if color == "rouge":
+        return nopow_eval + 1.5
+
+    if color == "noir":
+        info_c = copy(info)
+        info_c.playerList = deepcopy(info.playerList)
+        playerList = info_c.playerList
+        colorList = info_c.playerList.colorList
+        for color_n in colorList:
+            info_player = playerList.getPlayerInfo(color_n)
+            if info_player[0] in passages[pos] and not info.bloque.issubset({pos, info_player[0]}):
+                playerList.move(color_n, pos)
+        return selectMoveInsp(tuiles, idx, info_c)
+
+    if color == 'blanc':
+        info_c = copy(info)
+        info_c.playerList = deepcopy(info.playerList)
+        possibles = {p for p in passages[pos] if not info_c.bloque.issubset({p, pos})}
+        characters = []
+        bEval = nopow_eval
+        bresp = []
+        for c in info_c.playerList.colorList:
+            if c != color and info_c.playerList.getPlayerInfo(c)[0] == pos:
+                characters.append(c)
+        for x in range(0,3):
+            chars = []
+            moves = []
+            for c in characters:
+                chars.append(c)
+                move = sample(possibles, 1)[0]
+                info_c.playerList.move(c, move)
+                moves.append(move)
+            tmp_eval = selectMoveInsp(tuiles, idx, info_c)
+            if (tmp_eval >= bEval):
+                bEval = tmp_eval
+                bresp = []
+                for (i,c) in enumerate(chars):
+                    bresp.append(c + ':' + str(moves[i]))
+        for r in bresp:
+            info.toPlay.append(r)
+        return bEval
+
+    if color == 'violet':
+        colorList = info.playerList.colorList
+        res = ''
+        bEval = nopow_eval
+        for color_n in colorList:
+            info_c = copy(info)
+            info_c.playerList = deepcopy(info.playerList)
+            p_info = info_c.playerList.getPlayerInfo(color_n)
+            info_c.playerList.move(color_n, pos)
+            info_c.playerList.move(color, p_info[0])
+            tmp_eval = selectMoveInsp(tuiles, idx, info_c)
+            if (tmp_eval > bEval):
+                bEval = tmp_eval
+                res = color_n
+        if (res != ''):
+            info.toPlay.append(res)
+        return bEval
+
+    if color == 'marron':
+        bEval = nopow_eval
+        usePower = 0
+        way = -1
+        for p in passages[pos]:
+            if not info.bloque.issubset({pos, p}):
+                info_c = copy(info)
+                info_c.playerList = deepcopy(info.playerList)
+                playerList = info_c.playerList
+                playerList.move(color, p)
+                for color_n in playerList.colorList :
+                    if color_n != color and playerList.getPlayerInfo(color_n)[0] == pos:
+                        playerList.move(color_n, p)
+                tmp_eval = selectMoveInsp(tuiles, idx, info_c)
+                if (tmp_eval > bEval):
+                    bEval = tmp_eval
+                    usePower = 1
+                    way = p
+        if (way != -1):
+            info.toPlay.append(way)
+        info.toPlay.append(usePower)
+        return bEval
+
+
+    if color == 'gris':
+        info_c = copy(info)
+        bEval = nopow_eval
+        bRoom = pos
+        for i in range(0,9):
+            info_c.setShadow(i)
+            if (i != info.ombre):
+                tmp_eval = selectMoveInsp(tuiles, idx, info_c)
+                if (tmp_eval > bEval):
+                    bEval = tmp_eval
+                    bRoom = i
+        info.toPlay.append(bRoom)
+        return bEval
+
+    if color == "bleu":
+        bEval = nopow_eval
+        usePower = 0
+        info_c = copy(info)
+        room = 0
+        way = 0
+        for (i, p) in enumerate(passages) :
+            for w in p :
+                if (i < w):
+                    info_c.setBloque(i, w)
+                    tmp_eval = selectMoveInsp(tuiles, idx, info_c)
+                    if tmp_eval > bEval:
+                        bEval = tmp_eval
+                        usePower = 1
+                        room = i
+                        way = w
+        info.toPlay.append(room)
+        info.toPlay.append(way)
+        return bEval
+
     return selectMoveInsp(tuiles, idx, info)
 
 def selectPow1Insp(tuiles, idx, info):
