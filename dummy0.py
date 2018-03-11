@@ -1,5 +1,5 @@
 from random import randrange
-from copy import deepcopy
+from copy import deepcopy, copy
 import time
 
 path ='./0'
@@ -166,13 +166,13 @@ def howManySuspect(array):
 
 def evalFant(tuiles, idx, info):
     if len(tuiles) == 3:
-        tuiles_c = deepcopy(tuiles)
+        tuiles_c = copy(tuiles)
         del tuiles_c[idx]
-        return selectTuileFant(tuiles_c, deepcopy(info))
+        return selectTuileFant(tuiles_c, info)
     elif len(tuiles) == 2:
-        tuiles_c = deepcopy(tuiles)
+        tuiles_c = copy(tuiles)
         del tuiles_c[idx]
-        return selectTuileInsp(tuiles_c, deepcopy(info))
+        return selectTuileInsp(tuiles_c, info)
     else:
         playerList = info.playerList
         array = []
@@ -227,7 +227,7 @@ def selectPowOpt2Fant(tuiles, idx, info, nopow_eval):
     #     w = demander("Quelle salle bloquer ? (0-9)",self)
     #     x = int(w) if w.isnumeric() and int(w) in range(10) else 0
     #     w = demander("Quelle sortie ? Chosir parmi : "+str(passages[x]),self)
-    #     y = int(w) if w.isnumeric() and int(w) in passages[x] else passages[x].deepcopy().pop()
+    #     y = int(w) if w.isnumeric() and int(w) in passages[x] else passages[x].copy().pop()
     #     informer("REPONSE INTERPRETEE : "+str({x,y}))
     #     party.bloque = {x,y}
     return evalFant(tuiles, idx, info)
@@ -235,9 +235,8 @@ def selectPowOpt2Fant(tuiles, idx, info, nopow_eval):
 def selectPow2Fant(tuiles, idx, info):
     color = tuiles[idx].strip().split('-')[0]
     if color in apres|deux and not info.playerList.getPlayerInfo(color)[2]:
-        info2 = deepcopy(info)
         nopow_eval = evalFant(tuiles, idx, info)
-        pow_eval = selectPowOpt2Fant(tuiles, idx, info2, nopow_eval)
+        pow_eval = selectPowOpt2Fant(tuiles, idx, info, nopow_eval)
         if pow_eval < nopow_eval:
             return pow_eval
         return nopow_eval
@@ -252,12 +251,14 @@ def selectMoveFant(tuiles, idx, info):
     position = plinfo[0]
     disp = [x for x in pass_act[position] if position not in info.bloque or x not in info.bloque]
 
-    info_cp = deepcopy(info)
+    info_cp = copy(info)
+    info_cp.playerList = copy(info_cp.playerList)
     info_cp.playerList.changePlayerPlace(color, disp[0], plinfo[1], plinfo[2])
     max_scr = selectPow2Fant(tuiles, idx, info_cp)
     max_idx = 0
     for i in range(1, len(disp)):
-        info_cp2 = deepcopy(info)
+        info_cp2 = copy(info)
+        info_cp2.playerList = copy(info.playerList)
         info_cp2.playerList.changePlayerPlace(color, disp[i], plinfo[1], plinfo[2])
         scr = selectPow2Fant(tuiles, idx, info_cp2)
         if (scr < max_scr):
@@ -272,40 +273,48 @@ def selectPowOpt1Fant(tuiles, idx, info, nopow_eval):
 def selectPow1Fant(tuiles, idx, info):
     color = tuiles[idx].strip().split('-')[0]
     if color in avant|deux:
-        info2 = deepcopy(info)
         nopow_eval = selectMoveFant(tuiles, idx, info)
-        pow_eval = selectPowOpt1Fant(tuiles, idx, info2, nopow_eval)
+        pow_eval = selectPowOpt1Fant(tuiles, idx, info, nopow_eval)
         if pow_eval < nopow_eval:
             return pow_eval
         return nopow_eval
     return selectMoveFant(tuiles, idx, info)
 
 def selectTuileFant(tuiles, info):
-    info_cp = deepcopy(info)
-    max_scr = selectPow1Fant(tuiles, 0, info_cp)
+    max_scr = selectPow1Fant(tuiles, 0, info)
     max_idx = 0
     for i in range(1, len(tuiles)):
-        info_cp2 = deepcopy(info)
-        scr = selectPow1Fant(tuiles, i, info_cp2)
+        scr = selectPow1Fant(tuiles, i, info)
         if (scr < max_scr):
             max_scr = scr
             max_idx = i
-            info_cp = info_cp2
     return max_scr
+
+
+
+
+
+
 
 def evalInsp(tuiles, idx, info):
     if len(tuiles) == 4:
-        tuiles_c = deepcopy(tuiles)
+        tuiles_c = copy(tuiles)
         del tuiles_c[idx]
-        return selectTuileFant(tuiles_c, deepcopy(info))
+        info.toPlay = copy(info.toPlay)
+        info.playerList = copy(info.playerList)
+        return selectTuileFant(tuiles_c, info)
     elif len(tuiles) == 3:
-        tuiles_c = deepcopy(tuiles)
+        tuiles_c = copy(tuiles)
         del tuiles_c[idx]
-        return selectTuileInsp(tuiles_c, deepcopy(info))
+        info.toPlay = copy(info.toPlay)
+        info.playerList = copy(info.playerList)
+        return selectTuileInsp(tuiles_c, info)
     elif len(tuiles) == 2:
-        tuiles_c = deepcopy(tuiles)
+        tuiles_c = copy(tuiles)
         del tuiles_c[idx]
-        return selectTuileFant(tuiles_c, deepcopy(info))
+        info.toPlay = copy(info.toPlay)
+        info.playerList = copy(info.playerList)
+        return selectTuileFant(tuiles_c, info)
     else:
         playerList = info.playerList
         array = []
@@ -431,7 +440,9 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
 def selectPow2Insp(tuiles, idx, info):
     color = tuiles[idx].strip().split('-')[0]
     if (color in apres|deux) and (info.playerList.getPlayerInfo(color)[2]):
-        info2 = deepcopy(info)
+        info2 = copy(info)
+        info2.toPlay = copy(info.toPlay)
+        info2.playerList = copy(info.playerList)
         nopow_eval = evalInsp(tuiles, idx, info)
         pow_eval = selectPowOpt2Insp(tuiles, idx, info2, nopow_eval)
         if pow_eval > nopow_eval:
@@ -451,12 +462,16 @@ def selectMoveInsp(tuiles, idx, info):
     position = plinfo[0]
     disp = [x for x in pass_act[position] if position not in info.bloque or x not in info.bloque]
 
-    info_cp = deepcopy(info)
+    info_cp = copy(info)
+    info_cp.toPlay = copy(info.toPlay)
+    info_cp.playerList = copy(info.playerList)
     info_cp.playerList.changePlayerPlace(color, disp[0], plinfo[1], plinfo[2])
     max_scr = selectPow2Insp(tuiles, idx, info_cp)
     max_idx = 0
     for i in range(1, len(disp)):
-        info_cp2 = deepcopy(info)
+        info_cp2 = copy(info)
+        info_cp2.toPlay = copy(info.toPlay)
+        info_cp2.playerList = copy(info.playerList)
         info_cp2.playerList.changePlayerPlace(color, disp[i], plinfo[1], plinfo[2])
         scr = selectPow2Insp(tuiles, idx, info_cp2)
         if (scr > max_scr):
@@ -473,7 +488,8 @@ def selectPowOpt1Insp(tuiles, idx, info, nopow_eval):
 def selectPow1Insp(tuiles, idx, info):
     color = tuiles[idx].strip().split('-')[0]
     if color in avant|deux:
-        info2 = deepcopy(info)
+        info2 = copy(info)
+        info2.toPlay = copy(info.toPlay)
         nopow_eval = selectMoveInsp(tuiles, idx, info)
         pow_eval = selectPowOpt1Insp(tuiles, idx, info2, nopow_eval)
         if pow_eval > nopow_eval:
@@ -485,11 +501,13 @@ def selectPow1Insp(tuiles, idx, info):
     return selectMoveInsp(tuiles, idx, info)
 
 def selectTuileInsp(tuiles, info):
-    info_cp = deepcopy(info)
+    info_cp = copy(info)
+    info_cp.toPlay = copy(info.toPlay)
     max_scr = selectPow1Insp(tuiles, 0, info_cp)
     max_idx = 0
     for i in range(1, len(tuiles)):
-        info_cp2 = deepcopy(info)
+        info_cp2 = copy(info)
+        info_cp2.toPlay = copy(info.toPlay)
         scr = selectPow1Insp(tuiles, i, info_cp2)
         if (scr > max_scr):
             max_scr = scr
