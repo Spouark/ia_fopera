@@ -379,11 +379,6 @@ def selectPowOpt2Insp(tuiles, idx, info):
             info_c = deepcopy(info)
             playerList = info_c.playerList
             playerList.move(color, p)
-            tmp_eval = evalInsp(tuiles, idx, info_c)
-            if (tmp_eval > bEval):
-                bEval = tmp_eval
-                usePower = 0
-                way = p
             for color_n in playerList.colorList :
                 if color_n != color and playerList.getPlayerInfo(color_n)[0] == pos:
                     playerList.move(color_n, p)
@@ -392,7 +387,8 @@ def selectPowOpt2Insp(tuiles, idx, info):
                 bEval = tmp_eval
                 usePower = 1
                 way = p
-        info.toPlay.append(way)
+        if (way != -1):
+            info.toPlay.append(way)
         info.toPlay.append(usePower)
         return bEval
 
@@ -403,10 +399,11 @@ def selectPowOpt2Insp(tuiles, idx, info):
         bRoom = pos
         for i in range(0,9):
             info_c.setShadow(i)
-            tmp_eval = evalInsp(tuiles, idx, info_c)
-            if (tmp_eval > bEval):
-                bEval = tmp_eval
-                bRoom = i
+            if (i != info.ombre):
+                tmp_eval = evalInsp(tuiles, idx, info_c)
+                if (tmp_eval > bEval):
+                    bEval = tmp_eval
+                    bRoom = i
         info.toPlay.append(bRoom)
         return bEval
 

@@ -1,9 +1,9 @@
 from random import shuffle,randrange
 from time import sleep
 from threading import Thread
-import dummy0, dummy1
+import dummy0, dummy1, ftm
 
-latence = 0.05
+latence = 0.01
 permanents, deux, avant, apres = {'rose'}, {'rouge','gris','bleu'}, {'violet','marron'}, {'noir','blanc'}
 couleurs = avant | permanents | apres | deux
 passages = [{1,4},{0,2},{1,3},{2,7},{0,5,8},{4,6},{5,7},{3,6,9},{4,9},{7,8}]
@@ -40,6 +40,7 @@ class personnage:
 class joueur:
     def __init__(self,n):
         self.numero = n
+        self.win = 0
         self.role = "l'inspecteur" if n == 0 else "le fantome"
     def jouer(self,party):
         informer("****\n  Tour de "+self.role)
@@ -181,11 +182,18 @@ class partie:
         while self.start < self.end and len([p for p in self.personnages if p.suspect]) > 1:
             self.tour()
         informer("L'enquêteur a trouvé - c'était " + str(self.fantome) if self.start < self.end else "Le fantôme a gagné")
+        if (self.start >= self.end):
+            print('lel')
+        else:
+            print('lul')
         informer("Score final : "+str(self.end-self.start))
     def __repr__(self):
         return "Tour:" + str(self.num_tour) + ", Score:"+str(self.start)+"/"+str(self.end) + ", Ombre:" + str(self.shadow) + ", Bloque:" + str(self.bloque) +"\n" + "  ".join([str(p) for p in self.personnages])
 
-joueurs = [joueur(0),joueur(1)]
-Thread(target=dummy0.lancer).start()
-Thread(target=dummy1.lancer).start()
-partie(joueurs).lancer()
+index = 0
+while index < 1:
+    joueurs = [joueur(0),joueur(1)]
+    Thread(target=dummy0.lancer).start()
+    Thread(target=dummy1.lancer).start()
+    partie(joueurs).lancer()
+    index = index + 1
