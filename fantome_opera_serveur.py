@@ -1,9 +1,9 @@
 from random import shuffle,randrange
 from time import sleep
 from threading import Thread
-import dummy0, dummy1, ftm
+import dummy0, dummy1
 
-latence = 0.01
+latence = 1
 permanents, deux, avant, apres = {'rose'}, {'rouge','gris','bleu'}, {'violet','marron'}, {'noir','blanc'}
 couleurs = avant | permanents | apres | deux
 passages = [{1,4},{0,2},{1,3},{2,7},{0,5,8},{4,6},{5,7},{3,6,9},{4,9},{7,8}]
@@ -36,7 +36,7 @@ class personnage:
     def __repr__(self):
         susp = "-suspect" if self.suspect else "-clean"
         return self.couleur + "-" + str(self.position) + susp
-            
+
 class joueur:
     def __init__(self,n):
         self.numero = n
@@ -106,10 +106,10 @@ class joueur:
                     x = int(w) if w.isnumeric() and int(w) in range(10) else 0
                     w = demander("Quelle sortie ? Chosir parmi : "+str(passages[x]),self)
                     y = int(w) if w.isnumeric() and int(w) in passages[x] else passages[x].copy().pop()
-                    informer("REPONSE INTERPRETEE : "+str({x,y}))       
+                    informer("REPONSE INTERPRETEE : "+str({x,y}))
                     party.bloque = {x,y}
         return [p]
-                    
+
     def bouger(self,p,avec,bloque):
         pass_act = pass_ext if p.couleur == 'rose' else passages
         if p.couleur != 'violet' or p.pouvoir:
@@ -140,7 +140,7 @@ class partie:
         message("!!! Le fantôme est : "+self.fantome.couleur,[self.joueurs[1]])
         self.cartes.remove(self.fantome)
         self.cartes += ['fantome']*3
-        
+
         shuffle(self.tuiles)
         shuffle(self.cartes)
         for i,p in enumerate(self.tuiles):
@@ -170,7 +170,7 @@ class partie:
                     for p in gens:
                         p.suspect = False
         self.start += len([p for p in self.personnages if p.suspect])
-            
+
     def tour(self):
         informer("**************************\n" + str(self))
         self.actions()
@@ -183,9 +183,9 @@ class partie:
             self.tour()
         informer("L'enquêteur a trouvé - c'était " + str(self.fantome) if self.start < self.end else "Le fantôme a gagné")
         if (self.start >= self.end):
-            print('lel')
+            print('Fant wins')
         else:
-            print('lul')
+            print('Insp wins')
         informer("Score final : "+str(self.end-self.start))
     def __repr__(self):
         return "Tour:" + str(self.num_tour) + ", Score:"+str(self.start)+"/"+str(self.end) + ", Ombre:" + str(self.shadow) + ", Bloque:" + str(self.bloque) +"\n" + "  ".join([str(p) for p in self.personnages])

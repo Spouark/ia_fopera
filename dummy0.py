@@ -547,13 +547,15 @@ def purpleResponseRandom(question) :
     sendResponse(resp)
 
 def questionParser(question, old_question, info) :
-    start = time.time()
     if question != old_question and len(question) > 0:
         # print(question, infoGlobal.toPlay)
         if  question.count('[') > 0:
+            start = time.time()
             play = extractTuile(question)
             info.changeCharacter(play)
             # print(question, play)
+            end = time.time()
+            print("           ", question, end - start)
         elif  question.count('{') > 0:
             extractPossibilities(question)
         elif "Voulez-vous activer le pouvoir" in question :
@@ -569,9 +571,6 @@ def questionParser(question, old_question, info) :
             rf = open(path + '/reponses.txt','w')
             rf.write(str(0))
             rf.close()
-        end = time.time()
-        if end - start > 0.01:
-            print("           ", question, end - start)
 
 infoGlobal = InfoGlobal()
 def lancer():
