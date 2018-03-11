@@ -344,7 +344,7 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
         colorList = info_c.playerList.colorList
         for color_n in colorList:
             info_player = playerList.getPlayerInfo(color_n)
-            if info_player[0] in passages[pos]:
+            if info_player[0] in passages[pos] and not info.bloque.issubset({pos, info_player[0]}):
                 playerList.move(color_n, pos)
         return evalInsp(tuiles, idx, info)
 
@@ -360,7 +360,7 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
 
     if color == 'blanc':
         info_c = deepcopy(info)
-        possibles = passages[pos]
+        possibles = {p for p in passages[pos] if not info_c.bloque.issubset({p, pos})}
         characters = []
         bEval = nopow_eval
         bresp = []
@@ -410,17 +410,18 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
         usePower = 0
         way = -1
         for p in passages[pos]:
-            info_c = deepcopy(info)
-            playerList = info_c.playerList
-            playerList.move(color, p)
-            for color_n in playerList.colorList :
-                if color_n != color and playerList.getPlayerInfo(color_n)[0] == pos:
-                    playerList.move(color_n, p)
-            tmp_eval = evalInsp(tuiles, idx, info_c)
-            if (tmp_eval > bEval):
-                bEval = tmp_eval
-                usePower = 1
-                way = p
+            if not info.bloque.issubset({pos, p}):
+                info_c = deepcopy(info)
+                playerList = info_c.playerList
+                playerList.move(color, p)
+                for color_n in playerList.colorList :
+                    if color_n != color and playerList.getPlayerInfo(color_n)[0] == pos:
+                        playerList.move(color_n, p)
+                tmp_eval = evalInsp(tuiles, idx, info_c)
+                if (tmp_eval > bEval):
+                    bEval = tmp_eval
+                    usePower = 1
+                    way = p
         if (way != -1):
             info.toPlay.append(way)
         info.toPlay.append(usePower)
