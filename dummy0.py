@@ -324,7 +324,7 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
     info.playerList.togglePlayerPow(color)
 
     if color == "rouge":
-        return evalInsp(tuiles, idx, info) + 1.5
+        return nopow_eval + 1.5
 
     if color == "noir":
         info_c = deepcopy(info)
@@ -354,7 +354,7 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
     if color == 'violet':
         colorList = info.playerList.colorList
         res = ''
-        bEval = evalInsp(tuiles, idx, info)
+        bEval = nopow_eval
         for color_n in colorList:
             info_c = deepcopy(info)
             p_info = info_c.playerList.getPlayerInfo(color_n)
@@ -372,7 +372,7 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
     # if color == "marron":
     #     return [q for q in party.personnages if p.position == q.position]
     if color == 'marron':
-        bEval = 0
+        bEval = nopow_eval
         usePower = 0
         way = -1
         for p in passages[pos]:
@@ -395,7 +395,7 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
 
     if color == 'gris':
         info_c = deepcopy(info)
-        bEval = evalInsp(tuiles, idx, info_c)
+        bEval = nopow_eval
         bRoom = pos
         for i in range(0,9):
             info_c.setShadow(i)
@@ -408,7 +408,7 @@ def selectPowOpt2Insp(tuiles, idx, info, nopow_eval):
         return bEval
 
     if color == "bleu":
-        bEval = -1000
+        bEval = nopow_eval
         usePower = 0
         info_c = deepcopy(info)
         room = 0
