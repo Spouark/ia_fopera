@@ -425,13 +425,14 @@ def selectPowOpt2Insp(tuiles, idx, info):
         way = 0
         for (i, p) in enumerate(passages) :
             for w in p :
-                info_c.setBloque(i, w)
-                tmp_eval = evalInsp(tuiles, idx, info_c)
-                if tmp_eval > bEval:
-                    bEval = tmp_eval
-                    usePower = 1
-                    room = i
-                    way = w
+                if (i < w):
+                    info_c.setBloque(i, w)
+                    tmp_eval = evalInsp(tuiles, idx, info_c)
+                    if tmp_eval > bEval:
+                        bEval = tmp_eval
+                        usePower = 1
+                        room = i
+                        way = w
 
     return evalInsp(tuiles, idx, info)
 
